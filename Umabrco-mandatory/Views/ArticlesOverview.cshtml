@@ -1,0 +1,43 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage<ContentModels.ArticlesOverview>
+@using ContentModels = Umbraco.Web.PublishedContentModels;
+@{
+	Layout = "Master.cshtml";
+}
+<div id="main-container">
+    <div id="main" class="wrapper clearfix">
+        
+        
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1 class="display-4">Aarhus developer corporation</h1>
+    <p class="lead">Corporation of webdevelopers that are breaking through newest technology</p>
+  </div>
+</div>
+        
+            <header>
+                @Umbraco.Field("header")
+            </header>
+            
+            
+@{
+	var selection = Model.Content.Site().FirstChild("articlesOverview").Children("articlesItem")
+						.Where(x => x.IsVisible())
+						.OrderBy("Name");
+}
+<div class="container">
+  <div class="row">
+	@foreach(var item in selection){
+		
+		    <div class="col-sm">
+			<a href="@item.Url">@item.Name</a>
+            <div>@item.GetPropertyValue("articleContent")</div>
+             </div>
+		
+	}
+
+</div>
+</div>
+
+    
+        </div> <!-- #main -->
+</div> <!-- #main-container -->

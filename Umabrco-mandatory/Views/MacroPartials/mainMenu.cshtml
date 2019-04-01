@@ -1,0 +1,77 @@
+﻿@inherits Umbraco.Web.Macros.PartialViewMacroPage
+@using Umbraco.Web
+
+@{
+    var root = Model.Content.Site();
+    var selection = root.Children.Where(x => x.IsVisible()).ToArray();
+    var isProtected = false;
+    var loginAccess = false;
+}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#"></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+
+        <ul class="navbar-nav">
+            <li class="nav-item @(Model.Content.Name == root.Name ? "current" : null)">
+                <a class="nav-link" href="@root.Url">@root.Name</a>
+            </li>
+
+            @if (selection.Length > 0)
+            {
+                foreach (var item in selection)
+                {
+
+                    isProtected = umbraco.library.IsProtected(item.Id, item.Path);
+                    loginAccess = isProtected && umbraco.library.HasAccess(item.Id, item.Path);
+
+                    if (!isProtected || loginAccess)
+                    {
+                        if (item.Children().Where(x => x.IsVisible()).Count() > 0)
+                        {
+                            <li class="nav-item dropdown @(item.IsAncestorOrSelf(Model.Content) ? "current" : null)">
+                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" id="Preview" role="button" aria-haspopup="true" aria-expanded="false" href="@item.Url">@item.Name</a>
+
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                    @foreach (var subMenuItem in item.Children().Where(x => x.IsVisible()))
+                                    {
+
+                                        isProtected = umbraco.library.IsProtected(subMenuItem.Id, subMenuItem.Path);
+                                        loginAccess = umbraco.library.IsProtected(subMenuItem.Id, subMenuItem.Path) && umbraco.library.HasAccess(subMenuItem.Id, subMenuItem.Path);
+
+                                        if (!isProtected || loginAccess)
+                                        {
+                                            if (subMenuItem.DocumentTypeAlias == "projectItem")
+                                            {
+                                                if (umbraco.library.GetPreValueAsString(subMenuItem.GetPropertyValue<int>("projectStatus")) == "Completed")
+                                                {
+                                                    <a class="dropdown-item " href="@subMenuItem.Url">@subMenuItem.Name</a>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <a class="dropdown-item " href="@subMenuItem.Url">@subMenuItem.Name</a>
+                                            }
+                                        }
+                                    }
+
+                                </div>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item @(item.IsAncestorOrSelf(Model.Content) ? "current" : null)">
+                                <a class="nav-link" href="@item.Url">@item.Name</a>
+                            </li>
+                        }
+                    }
+                }
+            }
+        </ul>
+    </div><!-- /.navbar-collapse -->
+</nav>

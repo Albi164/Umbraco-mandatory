@@ -1,0 +1,29 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage<ContentModels.HomePage>
+@using ContentModels = Umbraco.Web.PublishedContentModels;
+@{
+	Layout = "Master.cshtml";
+}
+
+@Umbraco.Field("mainContent")
+
+@{
+	var selection = Model.Content.Site().FirstChild("projectOverview").Children("projectItem")
+						.Where(x => x.IsVisible());
+}
+<div class="container">
+  <div class="row">
+    
+
+	@foreach(var item in selection){
+		<div class="col-sm">
+			<a href="@item.Url">@item.Name</a>
+			
+		</div>
+	}
+
+
+  </div>
+</div>
+<div>
+    @Umbraco.RenderMacro("listNewestProjects")
+</div>
